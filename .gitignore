@@ -3,3 +3,5 @@
 /.idea
 /local.properties
 /build
+libs/
+src/main/res/drawable/

@@ -10,6 +10,8 @@ package com.jessewu.library;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
+import com.jessewu.library.options.CommOption;
+import com.jessewu.library.options.MultiViewOption;
 import com.jessewu.library.view.ViewHolder;
 
 import java.util.List;
@@ -20,10 +22,24 @@ public abstract class SuperAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private int mLayoutId;
 
 
-    public abstract void bindView(ViewHolder itemView,T data);
+    public abstract void bindView(ViewHolder itemView, T data);
 
-    public SuperAdapter(int layoutId,List<T> data){
+    public SuperAdapter(CommOption commOption){
 
+    }
+
+    public SuperAdapter(MultiViewOption multiViewOption){
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
     }
 
     @Override
@@ -33,11 +49,7 @@ public abstract class SuperAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
     }
 
-    @Override
-    public int getItemCount() {
-        return 0;
-    }
+
 }
