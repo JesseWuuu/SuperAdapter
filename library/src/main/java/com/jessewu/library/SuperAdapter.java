@@ -7,48 +7,95 @@ package com.jessewu.library;
  * ===========================
  */
 
-import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.jessewu.library.options.CommOption;
-import com.jessewu.library.options.MultiViewOption;
+import com.jessewu.library.base.BaseSuperAdapter;
+import com.jessewu.library.options.MultiViewBuilder;
 import com.jessewu.library.view.ViewHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SuperAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
+public abstract class SuperAdapter<T> extends BaseSuperAdapter {
 
-    private List<T> mDatas;
-    private int mLayoutId;
 
+    private List<T> mDatas = new ArrayList<>();
 
     public abstract void bindView(ViewHolder itemView, T data);
 
-    public SuperAdapter(CommOption commOption){
 
+    public SuperAdapter(int layoutId){
+        this.mSingleItemViewLayoutId = layoutId;
     }
 
-    public SuperAdapter(MultiViewOption multiViewOption){
+    public SuperAdapter(MultiViewBuilder multiViewBuilder){
+        mViewBuilder.add(multiViewBuilder);
+        this.mMultiViewBuilder = multiViewBuilder;
+    }
 
+    public void setData(List<T> datas){
+        this.mDatas = datas;
+        notifyDataSetChanged();
+    }
+
+    public void addData(List<T> datas){
+        this.mDatas.addAll(datas);
+        notifyDataSetChanged();
+    }
+
+     public void addData(T data){
+        this.mDatas.add(data);
+        notifyDataSetChanged();
+    }
+
+    public void removeData(T data){
+        this.mDatas.remove(data);
+        notifyDataSetChanged();
+    }
+
+    public void removeData(int position){
+        // TODO 如果有特殊 View 可能会出现问题
+        this.mDatas.remove(position);
+        notifyDataSetChanged();
+    }
+
+    public void clearData(){
+        this.mDatas.clear();
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return mDatas.size() + getBuilderNum();
     }
 
     @Override
     public int getItemViewType(int position) {
+
+        if(isMultiItemView()){
+            return mMultiViewBuilder.getItemType(position,mDatas.get(position));
+        }
+
         return super.getItemViewType(position);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        int layoutId = mSingleItemViewLayoutId;
+
+        if (isMultiItemView()){
+            layoutId = mMultiViewBuilder.getlayout(viewType);
+        }
+
+        LayoutInflater.from(parent.getContext()).inflate(layoutId,parent,false);
         return null;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        bindView(holder,mDatas.get(position));
     }
 
 
