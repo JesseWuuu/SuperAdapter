@@ -22,5 +22,12 @@
         android:layout_marginBottom="8dp"
         android:onClick="multiItemView"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:text="添加列表头部"
+        android:layout_marginBottom="8dp"
+        android:onClick="singleHeader"/>
+
 
 </LinearLayout>

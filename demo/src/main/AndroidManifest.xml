@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".NormalActivity" />
-        <activity android:name=".MultiItemViewActivity"></activity>
+        <activity android:name=".MultiItemViewActivity" />
+        <activity android:name=".SingleHeaderViewActivity"></activity>
     </application>
 
 </manifest>

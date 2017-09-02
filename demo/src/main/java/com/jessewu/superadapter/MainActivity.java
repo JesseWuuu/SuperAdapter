@@ -25,6 +25,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void singleHeader(View view){
+        Intent i = new Intent();
+        i.setClass(this,SingleHeaderViewActivity.class);
+        startActivity(i);
+    }
 
 
 }
