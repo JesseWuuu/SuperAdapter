@@ -29,5 +29,12 @@
         android:layout_marginBottom="8dp"
         android:onClick="singleHeader"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:text="点击事件"
+        android:layout_marginBottom="8dp"
+        android:onClick="click"/>
+
 
 </LinearLayout>

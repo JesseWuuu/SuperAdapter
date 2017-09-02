@@ -31,5 +31,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void click(View view){
+        Intent i = new Intent();
+        i.setClass(this,ClickActivity.class);
+        startActivity(i);
+    }
+
 
 }

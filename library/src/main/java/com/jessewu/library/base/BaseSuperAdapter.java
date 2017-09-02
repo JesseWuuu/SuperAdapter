@@ -23,11 +23,13 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
 
     protected int mSingleItemViewLayoutId;
 
+
     protected List<Builder> mSpecialViewBuilder = new ArrayList<>();
 
     protected MultiViewBuilder mMultiViewBuilder;
 
     protected HeaderBuilder mHeaderBuilder;
+
 
     protected int getSpecialBuilderNum(){
         return mSpecialViewBuilder.size();

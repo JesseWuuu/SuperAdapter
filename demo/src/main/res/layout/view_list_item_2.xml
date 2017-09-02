@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
+    android:background="#f2f2f2"
     android:layout_height="58dp">
 
     <TextView
@@ -9,8 +10,8 @@
         android:layout_width="match_parent"
         android:textSize="18sp"
         android:text="1"
-        android:background="#f2f2f2"
         android:gravity="center"
+        android:background="?android:selectableItemBackground"
         android:layout_height="match_parent" />
 
 </LinearLayout>
