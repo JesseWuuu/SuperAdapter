@@ -9,7 +9,7 @@ package com.jessewu.library.options;
 
 public interface MultiViewBuilder<T> extends Builder {
 
-    int getlayout(int type);
+    int getLayout(int type);
 
     int getItemType(int position,T data);
 

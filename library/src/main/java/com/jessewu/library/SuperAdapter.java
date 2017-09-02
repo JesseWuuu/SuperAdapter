@@ -7,7 +7,7 @@ package com.jessewu.library;
  * ===========================
  */
 
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.jessewu.library.base.BaseSuperAdapter;
@@ -19,18 +19,19 @@ import java.util.List;
 
 public abstract class SuperAdapter<T> extends BaseSuperAdapter {
 
+    private static final String TAG = "SuperAdapter";
 
     private List<T> mDatas = new ArrayList<>();
 
     public abstract void bindView(ViewHolder itemView, T data);
 
 
-    public SuperAdapter(int layoutId){
+    public SuperAdapter(int layoutId ){
         this.mSingleItemViewLayoutId = layoutId;
     }
 
+
     public SuperAdapter(MultiViewBuilder multiViewBuilder){
-        mViewBuilder.add(multiViewBuilder);
         this.mMultiViewBuilder = multiViewBuilder;
     }
 
@@ -67,6 +68,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter {
 
     @Override
     public int getItemCount() {
+        Log.d(TAG, "getItemCount: "+mDatas.size());
         return mDatas.size() + getBuilderNum();
     }
 
@@ -86,11 +88,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter {
         int layoutId = mSingleItemViewLayoutId;
 
         if (isMultiItemView()){
-            layoutId = mMultiViewBuilder.getlayout(viewType);
+            layoutId = mMultiViewBuilder.getLayout(viewType);
         }
 
-        LayoutInflater.from(parent.getContext()).inflate(layoutId,parent,false);
-        return null;
+        return ViewHolder.bindView(parent,layoutId);
     }
 
     @Override
