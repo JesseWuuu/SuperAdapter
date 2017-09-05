@@ -1,4 +1,4 @@
-package com.jessewu.library.options;
+package com.jessewu.library.builder;
 /*
  * ===========================
  * MultiViewBuilder     2017/08/29
@@ -7,7 +7,7 @@ package com.jessewu.library.options;
  * ===========================
  */
 
-public interface MultiViewBuilder<T> extends Builder {
+public interface MultiViewBuilder<T>  {
 
     int getLayout(int type);
 

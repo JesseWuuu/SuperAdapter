@@ -12,8 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jessewu.library.base.BaseSuperAdapter;
-import com.jessewu.library.options.HeaderBuilder;
-import com.jessewu.library.options.MultiViewBuilder;
+import com.jessewu.library.builder.FooterBuilder;
+import com.jessewu.library.builder.HeaderBuilder;
+import com.jessewu.library.builder.MultiViewBuilder;
+import com.jessewu.library.status.LoadDataStatus;
 import com.jessewu.library.view.ViewHolder;
 
 import java.util.ArrayList;
@@ -23,42 +25,81 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     private static final String TAG = "SuperAdapter";
 
+    // 数据源
     private List<T> mDatas = new ArrayList<>();
 
+    // 点击事件监听器
     private OnItemClickListener<T> mOnItemClickListener;
 
+    // 长按事件监听器
     private OnItemLongClickListener<T> mOnItemLongClickListener;
 
 
+    // 分页加载数据锁，列表滑动到底部时关闭锁防止重复加载数据，请求结束时打开锁
+    private boolean mLoadingLock = true;
+
+    // 分页加载数据时的当前页数
+    private int mCurrentPage = 0;
+
+    // 分页加载数据的状态
+    private int mLoadingStatus = LOADING;
+
+    // 分页加载数据时加载错误提示的信息
+    private String mLoadingFailureMsg = "";
+
+    /**
+     * 对列表中的itemView进行布局绑定
+     * 例：itemView.<TextView>getView(viewId).setText("1111");
+     *
+     * @param itemView 列表中的itemView
+     * @param data 当前itemView对应的数据源
+     */
     public abstract void bindView(ViewHolder itemView, T data);
 
+    /**
+     *  普通单布局列表构造方法
+     * @param layoutId 布局id
+     */
     public SuperAdapter(int layoutId ){
         this.mSingleItemViewLayoutId = layoutId;
     }
 
-
+    /**
+     * 多类型布局列表构造方法
+      * @param multiViewBuilder 多类型布局构造器
+     */
     public SuperAdapter(MultiViewBuilder multiViewBuilder){
         this.mMultiViewBuilder = multiViewBuilder;
     }
 
+    /**
+     * 添加列表唯一头部控件
+     * @param headerBuilder 头部控件构造器
+     */
     public void addHeader(HeaderBuilder headerBuilder){
         this.mHeaderBuilder = headerBuilder;
         this.mSpecialViewBuilder.add(headerBuilder);
     }
 
-
-    @Override
-    public int getItemCount() {
-        return mDatas.size() + getSpecialBuilderNum();
+    public void setEmtpyDataView(View view){
+        //TODO 没有数据时显示的提示视图
     }
+
+
 
     @Override
     public int getItemViewType(int position) {
 
+        Log.d(TAG, "getItemViewType: position"+position);
+
+        // TODO 列表滑动到底部时会多次调用 getItemViewType（int position） 方法
 
         if (position == 0 && hasHeaderView()){
-            Log.d(TAG, "TYPE_HEAD_SINGLE: ");
             return TYPE_HEAD_SINGLE;
+        }
+
+        if(position == mDatas.size() && hasFooterView()){
+            return TYPE_FOOT;
         }
 
         position = checkPosition(position);
@@ -77,6 +118,13 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
             return ViewHolder.bindView(parent,mHeaderBuilder.getHeaderLayoutId());
         }
 
+        if (viewType == TYPE_FOOT){
+            ViewHolder holder = ViewHolder.bindView(parent,mFooterBuilder.getFooterLayoutId());
+            // 设置成不被循环利用，每次都要重新加载
+            holder.setIsRecyclable(false);
+            return holder;
+        }
+
         // 列表中的ItemView应放在特殊View之后判断
         int layoutId = mSingleItemViewLayoutId;
         if (isMultiItemView()){
@@ -91,14 +139,58 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-
         if( position == 0 && hasHeaderView()){
+            // 绑定 header 视图
             mHeaderBuilder.bindHeaderView(holder);
             return;
         }
 
+        position = checkPosition(position);
+
+        Log.d(TAG, "onBindViewHolder: position:"+position+",dataSize:"+mDatas.size());
+
+        if (checkPosition(position) == mDatas.size() && hasFooterView()){
+
+            if (!mLoadingLock){
+                Log.d(TAG, "onBindViewHolder: loading lock is close");
+                return;
+            }
+
+            mLoadingLock = false;
+
+            // 加载数据中
+            if (mLoadingStatus == LOADING){
+                Log.d(TAG, "onBindViewHolder: LOADING");
+                mFooterBuilder.onLoadingData(holder,mCurrentPage+1,mLoadDataStatus);
+            }
+
+            // 加载数据失败
+            if (mLoadingStatus == LOADING_FAILURE){
+                mFooterBuilder.onLoadingFailure(holder,mLoadingFailureMsg);
+
+                // 将加载状态调整回正在加载中的状态，下次即可重新加载
+                mLoadingStatus = LOADING;
+
+                // 点击footer重新加载
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+            if (mLoadingStatus == LOADING_NO_MORE){
+                mFooterBuilder.onNoMoreData(holder);
+            }
+            return;
+        }
         holder.itemView.setTag(position);
-        bindView(holder,mDatas.get(checkPosition(position)));
+        bindView(holder,mDatas.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+        return mDatas.size() + getSpecialBuilderNum();
     }
 
     public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener){
@@ -132,6 +224,39 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     public interface OnItemLongClickListener<T>{
         void onLongClick(int position,T data);
+    }
+
+    public LoadDataStatus<T> setPaginationData(int startPage,FooterBuilder footerBuilder){
+        this.mFooterBuilder = footerBuilder;
+        this.mSpecialViewBuilder.add(footerBuilder);
+        this.mCurrentPage = startPage;
+        return mLoadDataStatus;
+    }
+
+    private LoadDataStatus<T> mLoadDataStatus = new LoadDataStatus<T>() {
+        @Override
+        public void onSuccess(List<T> data) {
+            addData(data);
+            mCurrentPage++;
+            mLoadingLock = true;
+        }
+
+        @Override
+        public void onFailure(String msg) {
+            onLoadingStatusChanged(LOADING_FAILURE);
+            mLoadingFailureMsg = msg;
+        }
+
+        @Override
+        public void onNoMoreData() {
+            onLoadingStatusChanged(LOADING_NO_MORE);
+        }
+    };
+
+    private void onLoadingStatusChanged(int status){
+        mLoadingStatus = status;
+        mLoadingLock = true;
+        notifyDataSetChanged();
     }
 
     public void setData(List<T> datas){

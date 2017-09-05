@@ -36,5 +36,12 @@
         android:layout_marginBottom="8dp"
         android:onClick="click"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:text="分页与自动加载更多"
+        android:layout_marginBottom="8dp"
+        android:onClick="more"/>
+
 
 </LinearLayout>

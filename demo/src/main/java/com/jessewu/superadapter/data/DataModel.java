@@ -24,4 +24,16 @@ public class DataModel {
         return data;
     }
 
+    public static List<TestEntity> getMoreData(int page){
+        List<TestEntity> data = new ArrayList<>();
+        for (int i = page*5; i < page*5+5; i++) {
+            TestEntity test = new TestEntity();
+            test.setTitle(i+"");
+            test.setSubTitle("这是第"+i+"个小标题");
+            test.setType(i % 2 );
+            data.add(test);
+        }
+        return data;
+    }
+
 }

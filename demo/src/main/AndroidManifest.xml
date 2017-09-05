@@ -19,7 +19,8 @@
         <activity android:name=".NormalActivity" />
         <activity android:name=".MultiItemViewActivity" />
         <activity android:name=".SingleHeaderViewActivity" />
-        <activity android:name=".ClickActivity"></activity>
+        <activity android:name=".ClickActivity" />
+        <activity android:name=".MoreDataActivity"></activity>
     </application>
 
 </manifest>

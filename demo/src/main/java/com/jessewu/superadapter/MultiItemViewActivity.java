@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import com.jessewu.library.SuperAdapter;
-import com.jessewu.library.options.MultiViewBuilder;
+import com.jessewu.library.builder.MultiViewBuilder;
 import com.jessewu.library.view.ViewHolder;
 import com.jessewu.superadapter.data.DataModel;
 import com.jessewu.superadapter.data.TestEntity;

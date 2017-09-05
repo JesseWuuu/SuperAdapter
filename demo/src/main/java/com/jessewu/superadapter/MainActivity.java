@@ -37,5 +37,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void more(View view){
+        Intent i = new Intent();
+        i.setClass(this,MoreDataActivity.class);
+        startActivity(i);
+    }
+
 
 }
