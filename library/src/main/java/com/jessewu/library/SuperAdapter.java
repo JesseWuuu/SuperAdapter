@@ -150,18 +150,20 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         Log.d(TAG, "onBindViewHolder: position:"+position+",dataSize:"+mDatas.size());
 
         if (checkPosition(position) == mDatas.size() && hasFooterView()){
-
-            if (!mLoadingLock){
-                Log.d(TAG, "onBindViewHolder: loading lock is close");
-                return;
-            }
-
-            mLoadingLock = false;
-
             // 加载数据中
             if (mLoadingStatus == LOADING){
                 Log.d(TAG, "onBindViewHolder: LOADING");
-                mFooterBuilder.onLoadingData(holder,mCurrentPage+1,mLoadDataStatus);
+                if (!mLoadingLock){
+                    Log.d(TAG, "onBindViewHolder: loading lock is close");
+                    mFooterBuilder.onLoading(holder);
+                    return;
+                }else {
+                    mLoadingLock = false;
+                    mFooterBuilder.onLoading(holder);
+                    mFooterBuilder.onLoadingData(mCurrentPage+1,mLoadDataStatus);
+                }
+
+
             }
 
             // 加载数据失败

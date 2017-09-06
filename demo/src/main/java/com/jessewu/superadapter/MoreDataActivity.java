@@ -47,16 +47,20 @@ public class MoreDataActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onLoadingData(ViewHolder holder, final int loadPage, final LoadDataStatus<TestEntity> loadDataStatus) {
+            public void onLoadingData(final int loadPage, final LoadDataStatus<TestEntity> loadDataStatus) {
 
-                holder.<ProgressBar>getView(R.id.footer_progress).setVisibility(View.VISIBLE);
-                holder.<TextView>getView(R.id.footer_msg).setVisibility(View.GONE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         loadDataStatus.onSuccess(DataModel.getMoreData(loadPage));
                     }
                 },2000);
+            }
+
+            @Override
+            public void onLoading(ViewHolder holder) {
+                holder.<ProgressBar>getView(R.id.footer_progress).setVisibility(View.VISIBLE);
+                holder.<TextView>getView(R.id.footer_msg).setVisibility(View.GONE);
             }
 
             @Override

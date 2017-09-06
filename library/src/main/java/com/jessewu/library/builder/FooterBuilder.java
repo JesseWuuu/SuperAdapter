@@ -14,7 +14,9 @@ public interface FooterBuilder<T> extends Builder {
 
     int getFooterLayoutId();
 
-    void onLoadingData(ViewHolder holder, int loadPage, final LoadDataStatus<T> loadDataStatus);
+    void onLoadingData(int loadPage, final LoadDataStatus<T> loadDataStatus);
+
+    void onLoading(ViewHolder holder);
 
     void onLoadingFailure(ViewHolder holder,String msg);
 
