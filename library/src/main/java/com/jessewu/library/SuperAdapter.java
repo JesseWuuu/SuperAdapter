@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import com.jessewu.library.base.BaseSuperAdapter;
 import com.jessewu.library.builder.FooterBuilder;
 import com.jessewu.library.builder.HeaderBuilder;
-import com.jessewu.library.builder.MultiViewBuilder;
+import com.jessewu.library.builder.MultiItemViewBuilder;
 import com.jessewu.library.status.LoadDataStatus;
 import com.jessewu.library.view.ViewHolder;
 
@@ -66,10 +66,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     /**
      * 多类型布局列表构造方法
-      * @param multiViewBuilder 多类型布局构造器
+      * @param multiItemViewBuilder 多类型布局构造器
      */
-    public SuperAdapter(MultiViewBuilder multiViewBuilder){
-        this.mMultiViewBuilder = multiViewBuilder;
+    public SuperAdapter(MultiItemViewBuilder multiItemViewBuilder){
+        this.mMultiItemViewBuilder = multiItemViewBuilder;
     }
 
     /**
@@ -105,7 +105,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         position = checkPosition(position);
 
         if(isMultiItemView()){
-            return mMultiViewBuilder.getItemType(position,mDatas.get(position));
+            return mMultiItemViewBuilder.getItemType(position,mDatas.get(position));
         }
 
         return super.getItemViewType(position);
@@ -128,7 +128,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         // 列表中的ItemView应放在特殊View之后判断
         int layoutId = mSingleItemViewLayoutId;
         if (isMultiItemView()){
-            layoutId = mMultiViewBuilder.getLayout(viewType);
+            layoutId = mMultiItemViewBuilder.getLayout(viewType);
         }
         ViewHolder viewHolder = ViewHolder.bindView(parent,layoutId);
         viewHolder.itemView.setOnClickListener(this);

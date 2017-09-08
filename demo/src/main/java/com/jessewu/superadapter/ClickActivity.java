@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.jessewu.library.SuperAdapter;
 import com.jessewu.library.builder.HeaderBuilder;
-import com.jessewu.library.builder.MultiViewBuilder;
+import com.jessewu.library.builder.MultiItemViewBuilder;
 import com.jessewu.library.view.ViewHolder;
 import com.jessewu.superadapter.data.DataModel;
 import com.jessewu.superadapter.data.TestEntity;
@@ -40,7 +40,7 @@ public class ClickActivity extends AppCompatActivity {
             }
         };
 
-        MultiViewBuilder<TestEntity> multiViewBuilder = new MultiViewBuilder<TestEntity>() {
+        MultiItemViewBuilder<TestEntity> multiItemViewBuilder = new MultiItemViewBuilder<TestEntity>() {
             @Override
             public int getLayout(int type) {
                 if (type == 1){
@@ -55,7 +55,7 @@ public class ClickActivity extends AppCompatActivity {
             }
         };
 
-        SuperAdapter<TestEntity> adapter = new SuperAdapter<TestEntity>(multiViewBuilder){
+        SuperAdapter<TestEntity> adapter = new SuperAdapter<TestEntity>(multiItemViewBuilder){
 
             @Override
             public void bindView(ViewHolder itemView, TestEntity data) {

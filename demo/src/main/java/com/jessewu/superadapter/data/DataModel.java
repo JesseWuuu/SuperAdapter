@@ -36,4 +36,21 @@ public class DataModel {
         return data;
     }
 
+    public static List<SubHeaderEntity> getSubHeaderData(){
+        List<SubHeaderEntity> list = new ArrayList<>();
+        for (int i = 1; i < 5; i++) {
+            SubHeaderEntity header = new SubHeaderEntity();
+            header.setChaprtName("第"+i+"个章节");
+            List<TestEntity> test = new ArrayList<>();
+            for (int j = 1; j < 10; j++) {
+                TestEntity entity = new TestEntity();
+                entity.setTitle(i+"");
+                test.add(entity);
+            }
+            header.setSections(test);
+            list.add(header);
+        }
+        return list;
+    }
+
 }

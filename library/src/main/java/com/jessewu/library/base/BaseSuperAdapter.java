@@ -12,7 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import com.jessewu.library.builder.Builder;
 import com.jessewu.library.builder.FooterBuilder;
 import com.jessewu.library.builder.HeaderBuilder;
-import com.jessewu.library.builder.MultiViewBuilder;
+import com.jessewu.library.builder.MultiItemViewBuilder;
 import com.jessewu.library.view.ViewHolder;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
 
     protected List<Builder> mSpecialViewBuilder = new ArrayList<>();
 
-    protected MultiViewBuilder mMultiViewBuilder;
+    protected MultiItemViewBuilder mMultiItemViewBuilder;
 
     protected HeaderBuilder mHeaderBuilder;
 
@@ -49,7 +49,7 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
     }
 
     protected boolean isMultiItemView(){
-        return mMultiViewBuilder != null;
+        return mMultiItemViewBuilder != null;
     }
 
     protected boolean hasHeaderView(){

@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import com.jessewu.library.SuperAdapter;
-import com.jessewu.library.builder.MultiViewBuilder;
+import com.jessewu.library.builder.MultiItemViewBuilder;
 import com.jessewu.library.view.ViewHolder;
 import com.jessewu.superadapter.data.DataModel;
 import com.jessewu.superadapter.data.TestEntity;
@@ -24,7 +24,7 @@ public class MultiItemViewActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
 
-        MultiViewBuilder<TestEntity> builder = new MultiViewBuilder<TestEntity>() {
+        MultiItemViewBuilder<TestEntity> builder = new MultiItemViewBuilder<TestEntity>() {
             @Override
             public int getLayout(int type) {
                 if (type == 0){
