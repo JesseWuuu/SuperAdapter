@@ -58,7 +58,7 @@ public class ClickActivity extends AppCompatActivity {
         SuperAdapter<TestEntity> adapter = new SuperAdapter<TestEntity>(multiItemViewBuilder){
 
             @Override
-            public void bindView(ViewHolder itemView, TestEntity data) {
+            public void bindView(ViewHolder itemView, TestEntity data,int position) {
                 if (data.getType() == 1){
                     itemView.<TextView>getView(R.id.text_1).setText(data.getTitle());
                 }else{

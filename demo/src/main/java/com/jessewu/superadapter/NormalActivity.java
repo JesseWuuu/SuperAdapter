@@ -25,7 +25,7 @@ public class NormalActivity extends AppCompatActivity {
         SuperAdapter<TestEntity> adapter = new SuperAdapter<TestEntity>(R.layout.view_list_item_1){
 
             @Override
-            public void bindView(ViewHolder itemView, TestEntity data) {
+            public void bindView(ViewHolder itemView, TestEntity data,int position) {
                 itemView.<TextView>getView(R.id.text_1).setText(data.getTitle());
             }
         };
