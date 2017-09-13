@@ -53,8 +53,9 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
      *
      * @param itemView 列表中的itemView
      * @param data 当前itemView对应的数据源
+     * @param position 当前itemView在列表中的位置
      */
-    public abstract void bindView(ViewHolder itemView, T data);
+    public abstract void bindView(ViewHolder itemView, T data ,int position);
 
     /**
      *  普通单布局列表构造方法
@@ -187,7 +188,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
             return;
         }
         holder.itemView.setTag(position);
-        bindView(holder,mDatas.get(position));
+        bindView(holder,mDatas.get(position),position);
     }
 
     @Override
@@ -205,7 +206,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     @Override
     public void onClick(View v) {
-        int position = checkPosition((int)v.getTag());
+        int position = (int)v.getTag();
         if (mOnItemClickListener != null){
             mOnItemClickListener.onClick(position,mDatas.get(position));
         }
@@ -213,7 +214,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     @Override
     public boolean onLongClick(View v) {
-        int position = checkPosition((int)v.getTag());
+        int position = (int)v.getTag();
         if (mOnItemLongClickListener != null){
             mOnItemLongClickListener.onLongClick(position,mDatas.get(position));
         }
