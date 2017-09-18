@@ -43,5 +43,12 @@
         android:layout_marginBottom="8dp"
         android:onClick="more"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:text="空视图"
+        android:layout_marginBottom="8dp"
+        android:onClick="empty"/>
+
 
 </LinearLayout>

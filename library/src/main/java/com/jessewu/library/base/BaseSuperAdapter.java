@@ -21,23 +21,43 @@ import java.util.List;
 public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> {
 
 
+    // 唯一头部item类型
     protected static final int TYPE_HEAD_SINGLE = 1000;
+
+    // 底部item类型
     protected static final int TYPE_FOOT = 1001;
+
+    // 无用类型
     protected static final int TYPE_IGNORE = 1002;
 
+    // 没有数据时提示视图item类型
+    protected static final int TYPE_EMPTY = 1003;
+
+    // 正在获取数据中
     protected static final int LOADING = 2000;
+
+    // 获取数据失败
     protected static final int LOADING_FAILURE = 2001;
+
+    // 没有更多的数据
     protected static final int LOADING_NO_MORE = 2002;
 
+    // 唯一头部布局id
     protected int mSingleItemViewLayoutId;
 
+    // 没有数据时显示的提示视图布局文件id
+    protected int mEmptyLayoutId = TYPE_IGNORE;
 
+    // 特殊布局容器，用来记录特殊布局数量
     protected List<Builder> mSpecialViewBuilder = new ArrayList<>();
 
+    // 多类型item 构建器
     protected MultiItemViewBuilder mMultiItemViewBuilder;
 
+    // 唯一头部视图构建器
     protected HeaderBuilder mHeaderBuilder;
 
+    // 底部视图构建器
     protected FooterBuilder mFooterBuilder;
 
 
@@ -48,16 +68,32 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
         return mSpecialViewBuilder.size();
     }
 
+    /**
+     * 是否为多类型item
+     */
     protected boolean isMultiItemView(){
         return mMultiItemViewBuilder != null;
     }
 
+    /**
+     * 是否存在header
+     */
     protected boolean hasHeaderView(){
         return mHeaderBuilder != null;
     }
 
+    /**
+     * 是否存在footer
+     */
     protected boolean hasFooterView(){
         return mFooterBuilder != null;
+    }
+
+    /**
+     * 是否设置过空视图
+     */
+    protected boolean hasEmptyView(){
+        return mEmptyLayoutId != TYPE_IGNORE;
     }
 
     /**

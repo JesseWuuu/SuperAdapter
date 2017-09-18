@@ -34,7 +34,6 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
     // 长按事件监听器
     private OnItemLongClickListener<T> mOnItemLongClickListener;
 
-
     // 分页加载数据锁，列表滑动到底部时关闭锁防止重复加载数据，请求结束时打开锁
     private boolean mLoadingLock = true;
 
@@ -46,6 +45,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     // 分页加载数据时加载错误提示的信息
     private String mLoadingFailureMsg = "";
+
 
     /**
      * 对列表中的itemView进行布局绑定
@@ -82,29 +82,49 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         this.mSpecialViewBuilder.add(headerBuilder);
     }
 
-    public void setEmtpyDataView(View view){
-        //TODO 没有数据时显示的提示视图
+    /**
+     * 没有数据时显示的提示视图
+     */
+    public void setEmptyDataView(int layoutId){
+        // TODO 空视图和加载更多数据冲突的问题
+        mEmptyLayoutId = layoutId;
     }
 
+    /**
+     * 是否应该显示空视图
+     */
+    private boolean shouldShowEmptyView(){
+        return hasEmptyView() && mDatas.size() == 0;
+    }
 
-
+    /**
+     *  方法中判断item类型的顺序不可调整
+     */
     @Override
     public int getItemViewType(int position) {
 
+        //  列表滑动到底部时会多次调用 getItemViewType（int position） 方法
         Log.d(TAG, "getItemViewType: position"+position);
 
-        // TODO 列表滑动到底部时会多次调用 getItemViewType（int position） 方法
-
+        // 判断唯一头部
         if (position == 0 && hasHeaderView()){
             return TYPE_HEAD_SINGLE;
         }
 
+        // 判断空视图
+        if (shouldShowEmptyView()){
+            return TYPE_EMPTY;
+        }
+
+        // 判断底部
         if(position == mDatas.size() && hasFooterView()){
             return TYPE_FOOT;
         }
 
+        // 重新效验position
         position = checkPosition(position);
 
+        // 多类型item
         if(isMultiItemView()){
             return mMultiItemViewBuilder.getItemType(position,mDatas.get(position));
         }
@@ -117,6 +137,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
         if (viewType == TYPE_HEAD_SINGLE){
             return ViewHolder.bindView(parent,mHeaderBuilder.getHeaderLayoutId());
+        }
+
+        if (viewType == TYPE_EMPTY){
+            return ViewHolder.bindView(parent,mEmptyLayoutId);
         }
 
         if (viewType == TYPE_FOOT){
@@ -143,6 +167,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         if( position == 0 && hasHeaderView()){
             // 绑定 header 视图
             mHeaderBuilder.bindHeaderView(holder);
+            return;
+        }
+
+        if (shouldShowEmptyView()){
             return;
         }
 
@@ -193,7 +221,13 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     @Override
     public int getItemCount() {
-        return mDatas.size() + getSpecialBuilderNum();
+        int count = mDatas.size();
+
+        // 如果数据源没有数据且设置过空视图，count加一
+        if (shouldShowEmptyView()){
+            count++;
+        }
+        return count + getSpecialBuilderNum();
     }
 
     public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener){

@@ -20,7 +20,8 @@
         <activity android:name=".MultiItemViewActivity" />
         <activity android:name=".SingleHeaderViewActivity" />
         <activity android:name=".ClickActivity" />
-        <activity android:name=".MoreDataActivity"></activity>
+        <activity android:name=".MoreDataActivity" />
+        <activity android:name=".EmptyViewActivity"></activity>
     </application>
 
 </manifest>
