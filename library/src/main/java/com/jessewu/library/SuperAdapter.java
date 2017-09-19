@@ -46,6 +46,19 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
     // 分页加载数据时加载错误提示的信息
     private String mLoadingFailureMsg = "";
 
+    /**
+     *  点击事件监听器
+     */
+    public interface OnItemClickListener<T>{
+        void onClick(int position,T data);
+    }
+
+    /**
+     *  长按事件监听器
+     */
+    public interface OnItemLongClickListener<T>{
+        void onLongClick(int position,T data);
+    }
 
     /**
      * 对列表中的itemView进行布局绑定
@@ -92,10 +105,79 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
     }
 
     /**
-     * 是否应该显示空视图
+     * 注册点击事件监听器
      */
-    private boolean shouldShowEmptyView(){
-        return hasEmptyView() && mDatas.size() == 0 && !hasFooterView();
+    public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener){
+        this.mOnItemClickListener = onItemClickListener;
+    }
+
+    /**
+     * 注册长按事件监听器
+     */
+    public void setOnItemLongClickListener(OnItemLongClickListener<T> onItemLongClickListener){
+        this.mOnItemLongClickListener = onItemLongClickListener;
+    }
+
+    /**
+     * 设置列表以分页的方式动态加载数据源
+     *
+     * @param startPage 加载数据的起始页，如 startPage = 0 列表之后加载数据的页数依次为1、2、3...
+     * @param footerBuilder 列表底部布局footer构造器
+     * @return 分页加载数据 - 状态控制器
+     */
+    public LoadDataStatus<T> setPaginationData(int startPage,FooterBuilder footerBuilder){
+        this.mFooterBuilder = footerBuilder;
+        this.mSpecialViewBuilder.add(footerBuilder);
+        this.mCurrentPage = startPage;
+        return mLoadDataStatus;
+    }
+
+    /**
+     *  设置数据源
+     */
+    public void setData(List<T> datas){
+        this.mDatas = datas;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 添加数据源
+     */
+    public void addData(List<T> datas){
+        this.mDatas.addAll(datas);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 添加数据源
+     */
+    public void addData(T data){
+        this.mDatas.add(data);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 移除数据源
+     */
+    public void removeData(T data){
+        this.mDatas.remove(data);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 移除数据源
+     */
+    public void removeData(int position){
+        this.mDatas.remove(checkPosition(position));
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 清空数据源
+     */
+    public void clearData(){
+        this.mDatas.clear();
+        notifyDataSetChanged();
     }
 
     /**
@@ -192,8 +274,6 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
                     mFooterBuilder.onLoading(holder);
                     mFooterBuilder.onLoadingData(mCurrentPage+1,mLoadDataStatus);
                 }
-
-
             }
 
             // 加载数据失败
@@ -231,14 +311,6 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         return count + getSpecialBuilderNum();
     }
 
-    public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener){
-        this.mOnItemClickListener = onItemClickListener;
-    }
-
-    public void setOnItemLongClickListener(OnItemLongClickListener<T> onItemLongClickListener){
-        this.mOnItemLongClickListener = onItemLongClickListener;
-    }
-
     @Override
     public void onClick(View v) {
         int position = (int)v.getTag();
@@ -256,21 +328,11 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         return true;
     }
 
-    public interface OnItemClickListener<T>{
-        void onClick(int position,T data);
-    }
 
-    public interface OnItemLongClickListener<T>{
-        void onLongClick(int position,T data);
-    }
 
-    public LoadDataStatus<T> setPaginationData(int startPage,FooterBuilder footerBuilder){
-        this.mFooterBuilder = footerBuilder;
-        this.mSpecialViewBuilder.add(footerBuilder);
-        this.mCurrentPage = startPage;
-        return mLoadDataStatus;
-    }
-
+    /**
+     * 分页获取数据状态控制器接口实现类
+     */
     private LoadDataStatus<T> mLoadDataStatus = new LoadDataStatus<T>() {
         @Override
         public void onSuccess(List<T> data) {
@@ -291,41 +353,20 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         }
     };
 
+    /**
+     * 当分页获取数据状态发生改变
+     */
     private void onLoadingStatusChanged(int status){
         mLoadingStatus = status;
         mLoadingLock = true;
         notifyDataSetChanged();
     }
 
-    public void setData(List<T> datas){
-        this.mDatas = datas;
-        notifyDataSetChanged();
-    }
-
-    public void addData(List<T> datas){
-        this.mDatas.addAll(datas);
-        notifyDataSetChanged();
-    }
-
-    public void addData(T data){
-        this.mDatas.add(data);
-        notifyDataSetChanged();
-    }
-
-    public void removeData(T data){
-        this.mDatas.remove(data);
-        notifyDataSetChanged();
-    }
-
-    public void removeData(int position){
-        // TODO 如果有特殊 View 可能会出现问题
-        this.mDatas.remove(position);
-        notifyDataSetChanged();
-    }
-
-    public void clearData(){
-        this.mDatas.clear();
-        notifyDataSetChanged();
+    /**
+     * 是否应该显示空视图
+     */
+    private boolean shouldShowEmptyView(){
+        return hasEmptyView() && mDatas.size() == 0 && !hasFooterView();
     }
 
 
