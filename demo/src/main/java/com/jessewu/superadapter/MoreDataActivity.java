@@ -39,6 +39,7 @@ public class MoreDataActivity extends AppCompatActivity {
             }
         };
         recyclerView.setAdapter(adapter);
+        adapter.setEmptyDataView(R.layout.activity_empty_view);
         adapter.setPaginationData(0,new FooterBuilder<TestEntity>(){
 
             @Override

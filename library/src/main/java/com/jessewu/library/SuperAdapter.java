@@ -84,9 +84,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     /**
      * 没有数据时显示的提示视图
+     *
+     * 注意: 当设置了分页加载数据的footer后空视图将无效
      */
     public void setEmptyDataView(int layoutId){
-        // TODO 空视图和加载更多数据冲突的问题
         mEmptyLayoutId = layoutId;
     }
 
@@ -94,7 +95,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
      * 是否应该显示空视图
      */
     private boolean shouldShowEmptyView(){
-        return hasEmptyView() && mDatas.size() == 0;
+        return hasEmptyView() && mDatas.size() == 0 && !hasFooterView();
     }
 
     /**
