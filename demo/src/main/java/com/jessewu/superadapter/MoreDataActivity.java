@@ -7,11 +7,13 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.jessewu.library.SuperAdapter;
 import com.jessewu.library.builder.FooterBuilder;
+import com.jessewu.library.builder.HeaderBuilder;
 import com.jessewu.library.status.LoadDataStatus;
 import com.jessewu.library.view.ViewHolder;
 import com.jessewu.superadapter.data.DataModel;
@@ -39,7 +41,25 @@ public class MoreDataActivity extends AppCompatActivity {
             }
         };
         recyclerView.setAdapter(adapter);
+
+        HeaderBuilder builder = new HeaderBuilder() {
+            @Override
+            public int getHeaderLayoutId() {
+                return R.layout.view_header_single;
+            }
+
+            @Override
+            public void bindHeaderView(ViewHolder viewHolder) {
+                viewHolder.<ImageView>getView(R.id.header_img).setImageResource(R.mipmap.ic_launcher);
+                viewHolder.<TextView>getView(R.id.header_tv).setText("这是一个头部");
+            }
+        };
+
+        adapter.addHeader(builder);
+
         adapter.setEmptyDataView(R.layout.activity_empty_view);
+
+
         adapter.setPaginationData(0,new FooterBuilder<TestEntity>(){
 
             @Override
@@ -78,10 +98,6 @@ public class MoreDataActivity extends AppCompatActivity {
                 holder.<TextView>getView(R.id.footer_msg).setText("已经到底了");
             }
         });
-    }
-
-    public void getMoreData(){
-
     }
 
 }

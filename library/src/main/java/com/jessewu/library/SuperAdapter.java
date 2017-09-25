@@ -7,7 +7,6 @@ package com.jessewu.library;
  * ===========================
  */
 
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -182,12 +181,11 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
     /**
      *  方法中判断item类型的顺序不可调整
+     *
+     *  列表滑动到底部时会多次调用 getItemViewType（int position） 方法
      */
     @Override
     public int getItemViewType(int position) {
-
-        //  列表滑动到底部时会多次调用 getItemViewType（int position） 方法
-        Log.d(TAG, "getItemViewType: position"+position);
 
         // 判断唯一头部
         if (position == 0 && hasHeaderView()){
@@ -199,14 +197,13 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
             return TYPE_EMPTY;
         }
 
+        // 重新效验position
+        position = checkPosition(position);
+
         // 判断底部
         if(position == mDatas.size() && hasFooterView()){
             return TYPE_FOOT;
         }
-
-        // 重新效验position
-        position = checkPosition(position);
-
         // 多类型item
         if(isMultiItemView()){
             return mMultiItemViewBuilder.getItemType(position,mDatas.get(position));
@@ -259,14 +256,11 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
 
         position = checkPosition(position);
 
-        Log.d(TAG, "onBindViewHolder: position:"+position+",dataSize:"+mDatas.size());
 
-        if (checkPosition(position) == mDatas.size() && hasFooterView()){
+        if (position == mDatas.size() && hasFooterView()){
             // 加载数据中
             if (mLoadingStatus == LOADING){
-                Log.d(TAG, "onBindViewHolder: LOADING");
                 if (!mLoadingLock){
-                    Log.d(TAG, "onBindViewHolder: loading lock is close");
                     mFooterBuilder.onLoading(holder);
                     return;
                 }else {
