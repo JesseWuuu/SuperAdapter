@@ -22,18 +22,20 @@ import com.jessewu.superadapter.data.TestEntity;
 public class MoreDataActivity extends AppCompatActivity {
 
 
+    SuperAdapter<TestEntity> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_more_data);
 
         setContentView(R.layout.activity_list);
+
+
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
-        SuperAdapter<TestEntity> adapter = new SuperAdapter<TestEntity>(R.layout.view_list_item_1){
+        adapter = new SuperAdapter<TestEntity>(R.layout.view_list_item_1){
 
             @Override
             public void bindView(ViewHolder itemView, TestEntity data,int position) {
@@ -60,6 +62,17 @@ public class MoreDataActivity extends AppCompatActivity {
         adapter.setEmptyDataView(R.layout.activity_empty_view);
 
 
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setData();
+            }
+        });
+
+    }
+
+    private void setData(){
+        adapter.clearData();
         adapter.setPaginationData(0,new FooterBuilder<TestEntity>(){
 
             @Override
