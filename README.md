@@ -172,6 +172,15 @@ mAdapter.setOnItemLongClickListener(new SuperAdapter.OnItemLongClickListener<Dat
 
 ```
 
+## 设置空数据视图
+
+空数据视图是指宕列表的数据源数据为空时显示的提示视图。设置的使用方法非常简单：
+
+```
+mAdapter.setEmptyDataView(R.layout.empty_view);
+
+```
+
 ## 分页与上拉加载更多数据
 现实使用场景中有上拉加载更多数据的功能就一定有分页功能，所以我们将这两个功能绑定在了一起，自动加载更多数据方法：
 ```
