@@ -7,6 +7,7 @@ package com.jessewu.library;
  * ===========================
  */
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -91,7 +92,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
      */
     public void addHeader(HeaderBuilder headerBuilder){
         this.mHeaderBuilder = headerBuilder;
-        this.mSpecialViewBuilder.add(headerBuilder);
+        this.mSpecialViewBuilder.add("header");
     }
 
     /**
@@ -126,7 +127,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
      */
     public LoadDataStatus<T> setPaginationData(int startPage,FooterBuilder footerBuilder){
         this.mFooterBuilder = footerBuilder;
-        this.mSpecialViewBuilder.add(footerBuilder);
+        this.mSpecialViewBuilder.add("footer");
         this.mCurrentPage = startPage;
         return mLoadDataStatus;
     }
@@ -244,20 +245,24 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
+        Log.d(TAG, "onBindViewHolder----------------");
+
         if( position == 0 && hasHeaderView()){
             // 绑定 header 视图
             mHeaderBuilder.bindHeaderView(holder);
+            Log.d(TAG, " header");
             return;
         }
 
         if (shouldShowEmptyView()){
+            Log.d(TAG, "emptyView");
             return;
         }
 
         position = checkPosition(position);
 
-
         if (position == mDatas.size() && hasFooterView()){
+            Log.d(TAG, "footer");
             // 加载数据中
             if (mLoadingStatus == LOADING){
                 if (!mLoadingLock){
@@ -290,6 +295,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
             }
             return;
         }
+
         holder.itemView.setTag(position);
         bindView(holder,mDatas.get(position),position);
     }
@@ -302,6 +308,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         if (shouldShowEmptyView()){
             count++;
         }
+
         return count + getSpecialBuilderNum();
     }
 

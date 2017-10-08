@@ -9,14 +9,13 @@ package com.jessewu.library.base;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.jessewu.library.builder.Builder;
 import com.jessewu.library.builder.FooterBuilder;
 import com.jessewu.library.builder.HeaderBuilder;
 import com.jessewu.library.builder.MultiItemViewBuilder;
 import com.jessewu.library.view.ViewHolder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> {
 
@@ -48,8 +47,8 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
     // 没有数据时显示的提示视图布局文件id
     protected int mEmptyLayoutId = TYPE_IGNORE;
 
-    // 特殊布局容器，用来记录特殊布局数量
-    protected List<Builder> mSpecialViewBuilder = new ArrayList<>();
+    // 特殊布局计数器，用来记录特殊布局数量
+    protected Set<String> mSpecialViewBuilder = new HashSet<>();
 
     // 多类型item 构建器
     protected MultiItemViewBuilder mMultiItemViewBuilder;
