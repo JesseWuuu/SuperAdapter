@@ -26,7 +26,7 @@ public class MultiItemViewActivity extends AppCompatActivity {
 
         MultiItemViewBuilder<TestEntity> builder = new MultiItemViewBuilder<TestEntity>() {
             @Override
-            public int getLayout(int type) {
+            public int getLayoutId(int type) {
                 if (type == 0){
                     return R.layout.view_list_item_1;
                 }else {

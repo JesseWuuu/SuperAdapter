@@ -42,7 +42,7 @@ public class ClickActivity extends AppCompatActivity {
 
         MultiItemViewBuilder<TestEntity> multiItemViewBuilder = new MultiItemViewBuilder<TestEntity>() {
             @Override
-            public int getLayout(int type) {
+            public int getLayoutId(int type) {
                 if (type == 1){
                     return R.layout.view_list_item_1;
                 }

@@ -15,7 +15,7 @@ public interface MultiItemViewBuilder<T>  {
     /**
      * 通过type 获取item view布局id
      */
-    int getLayout(int type);
+    int getLayoutId(int type);
 
     /**
      * 通过列表的 position 和与 position 对应的数据源获取item type

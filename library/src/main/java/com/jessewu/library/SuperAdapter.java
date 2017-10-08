@@ -234,7 +234,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter implements View.O
         // 列表中的ItemView应放在特殊View之后判断
         int layoutId = mSingleItemViewLayoutId;
         if (isMultiItemView()){
-            layoutId = mMultiItemViewBuilder.getLayout(viewType);
+            layoutId = mMultiItemViewBuilder.getLayoutId(viewType);
         }
         ViewHolder viewHolder = ViewHolder.bindView(parent,layoutId);
         viewHolder.itemView.setOnClickListener(this);

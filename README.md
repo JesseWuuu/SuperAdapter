@@ -52,18 +52,21 @@ SuperAdapter<DataEntity> mAdapter;
 ## 绑定单一布局的列表
 绑定单一布局列表的方法非常简单，只需要在`SuperAdapter`的构造函数中添加布局文件的`layoutId`与数据源即可。
 ```
-mSuperAdapter = new SuperAdapter<DataEntity>(R.layout.view_list_item,mData) {
-     @Override
-     public void convert(ViewHolder holder, DataEntity entity) {
-        // 此处写绑定控件的逻辑  
-        holder.<TextView>.getView(R.id.tv_name).setText(entity.getName());
+SuperAdapter<DataEntity> adapter = new SuperAdapter<DataEntity>(R.layout.view_list_item_1){
+
+    @Override
+    public void bindView(ViewHolder itemView, DataEntity data,int position) {
+        // 此处写绑定itemview中的控件逻辑
+        itemView.<TextView>getView(R.id.text_1).setText(data.getTitle());
         Button button = holder.<Button>getView(R.id.button);
-        button.setEnabled(entity.IsEnabled());         
-     }
+        button.setEnabled(entity.IsEnabled());   
+    }               
 };
 ```
-抽象方法`convert(ViewHolder holder, DataEntity entity)`中的两个参数是列表中同一`position`对应的`viewHolder`和数据源，您可以通过`holder.getView(int id)`方法来绑定控件并填充数据。
+我们需要在方法 `void bindView(ViewHolder itemView, DataEntity data,int position)` 中绑定列表每个条目中的控件并进行逻辑处理。其中方法参数`ViewHolder itemView` 为自定义 `ViewHolder`。
 
+### 通用ViewHolder
+为方便管理，SuperAdapter 中的 ViewHolder 均为一个自定义的通用 ViewHolder ，其中它对外提供了一个 `<T extends View>T getView(int viewId)` 方法来代替 `View findViewById(int ViewId)`获取布局中的控件，目的是简化绑定控件方法以及对每个条目中的子 view 做了简单的缓存,具体使用方法上述代码段中有体现。
 
 ## 绑定多种布局的列表
 
@@ -76,66 +79,74 @@ MultiItemViewBuilder<DataEntity> multiItemViewBuilder;
 
 `MultiItemViewBuilder`需要您实现两个方法：
 
-- 在方法`getItemViewType(int position, DataEntity entity)`中通过参数`position`和数据源`entity`来判断返回ItemView类型，ItemView的类型为`int`且具体的值需要您自己定义。
-- 在方法`getItemViewLayoutId(int itemType)`中判断`itemType`来返回对应的布局文件id。
+- `int getItemType(int position,T data)`，通过参数中的位置和数据源来判断返回ItemView类型，ItemView类型的值需自定义。
+- `int getLayoutId(int type)`，通过判断`itemType`返回对应的布局文件id。
 ```
-multiViewType = new SuperAdapter.MultiItemViewTypeHelper<DataEntity>() {
-            @Override
-            public int getItemViewLayoutId(int itemType) {
-                if (itemType == TestImpl.TYPE_NORMAL){
-                    return R.layout.view_item_normal;
-                }
-                return R.layout.view_item_other;
+MultiItemViewBuilder<DataEntity> multiItemViewBuilder = MultiItemViewBuilder<TestEntity>() {
+        @Override
+        public int getLayoutId(int type) {
+            if (type == 0){
+                return R.layout.view_item_normal;
+            }
+            return R.layout.view_item_other;
+        }
+
+        @Override
+        public int getItemType(int position, DataEntity data) {
+                
+            if(entity.isTest()){
+                return 0;
+            }else{
+                return 1;
             }
 
-            @Override
-            public int getItemViewType(int position, DataEntity entity) {
-                return entity.getType();
-            }
+        }
  };
 ```
-最后，将`MultiItemViewTypeHelper`直接添加到`SuperAdapter`构造函数中即可：
+最后，将`MultiItemViewBuilder`直接添加到`SuperAdapter`构造函数中即可：
 ```
-mAdapter = new SuperAdapter<DataEntity>(multiViewType,mData) {
-            @Override
-            public void convert(ViewHolder holder, DataEntity entity) {
+mAdapter = new SuperAdapter<DataEntity>(multiItemViewBuilder,mData) {
+
+        @Override
+        public void convert(ViewHolder holder, DataEntity entity) {
               
-            }
+        }
+
  };
 ```
+最后在方法`convert()`中绑定控件逻辑时需要针对不同的控件类型分别处理。
 
-## 添加自定义Header
-自定义头部控件本质是一个特殊的`ItemView`，它永远存在列表最上方的位置且跟随列表滑动。
+## 添加列表唯一顶部Header
 
-添加自定义头部控件需要实现一个辅助接口来管理自定义头部布局：
+为什么要说是列表“唯一顶部”的 Header 呢？因为除该 Header 外，还有一种用于显示分类信息的 Header ，类似与通讯录中通过首字母 A~Z 顺序显示联系人。
+
+自定义头部控件的本质其实就是列表中的一个特殊`ItemView`，它永远存在列表最上方的位置且跟随列表滑动。
+
+添加自定义头部需要实现一个头部构造器来管理自定义头部布局：
+
 ```
-SuperAdapter.SpecialViewHelper mHeaderHelper = new SuperAdapter.SpecialViewHelper() {
-            @Override
-            public int getLayoutId() {
-                return R.layout.view_header;
-            }
+HeaderBuilder builder = new HeaderBuilder() {
+        @Override
+        public int getHeaderLayoutId() {
+            return R.layout.view_header;
+        }
 
-            @Override
-            public void convert(ViewHolder view) {
-                ImageView background = view.getView(R.id.header_img);
-                TextView name = view.getView(R.id.header_name);
-            }
+        @Override
+        public void bindHeaderView(ViewHolder holder) {
+            ImageView background = holder.getView(R.id.header_img);
+            holder.<TextView>getView(R.id.header_name).setText("Test UserName);
+        }
 
-            @Override
-            public void onClick(View view) {
-
-            }
 };
 ```
-辅助接口中有三个回调方法：
+构造器接口中有两个回调方法：
 
 - `int getLayoutId()` 设置自定义头部的布局id；
 - `void convert(ViewHolder view) `  绑定布局中的控件及添加逻辑；
-- ` void onClick(View view)` 头部布局的点击事件。
 
-最后，将实现好的辅助接口设置到适配器中即可：
+最后，将实现好的头部构造器添加到适配器中即可：
 ```
-mAdapter.addHeaderView(mHeaderHelper);
+mAdapter.addHeader(builder);
 
 ```
 
@@ -143,23 +154,24 @@ mAdapter.addHeaderView(mHeaderHelper);
 绑定点击事件：
 ```
 mAdapter.setOnItemClickListener(new SuperAdapter.OnItemClickListener<DataEntity>() {
-            @Override
-            public void onItemClick(int position, DataEntity entity) {
-
-            }
+        @Override
+        public void onItemClick(int position, DataEntity entity) {
+            // 此处写点击事件的逻辑
+        }
 });
 
 ```
 绑定长按事件：
 ```
 mAdapter.setOnItemLongClickListener(new SuperAdapter.OnItemLongClickListener<DataEntity>() {
-            @Override
-            public void onItemLongClick(int position, DataEntity entity) {
-
-            }
+        @Override
+        public void onItemLongClick(int position, DataEntity entity) {
+            // 此处写长按事件的逻辑
+        }
 });
 
 ```
+
 ## 分页与上拉加载更多数据
 现实使用场景中有上拉加载更多数据的功能就一定有分页功能，所以我们将这两个功能绑定在了一起，自动加载更多数据方法：
 ```

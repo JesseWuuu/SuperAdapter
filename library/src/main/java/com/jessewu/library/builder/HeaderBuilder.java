@@ -24,6 +24,6 @@ public interface HeaderBuilder extends Builder {
     /**
      *  header布局界面逻辑处理
      */
-    void bindHeaderView(ViewHolder viewHolder);
+    void bindHeaderView(ViewHolder holder);
 
 }
