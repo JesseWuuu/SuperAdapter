@@ -21,7 +21,8 @@
         <activity android:name=".SingleHeaderViewActivity" />
         <activity android:name=".ClickActivity" />
         <activity android:name=".MoreDataActivity" />
-        <activity android:name=".EmptyViewActivity"></activity>
+        <activity android:name=".EmptyViewActivity" />
+        <activity android:name=".DemoActivity"></activity>
     </application>
 
 </manifest>

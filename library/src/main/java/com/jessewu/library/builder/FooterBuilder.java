@@ -2,12 +2,11 @@ package com.jessewu.library.builder;
 /*
  * ===========================
  * FooterBuilder     2017/09/02
- *      
+ *
  * Created by JesseWu
  * ===========================
  */
 
-import com.jessewu.library.status.LoadDataStatus;
 import com.jessewu.library.view.ViewHolder;
 
 
@@ -16,9 +15,8 @@ import com.jessewu.library.view.ViewHolder;
  *
  * 用于配合分页加载数据，控制footer的不同状态
  *
- * @param <T> 数据源类型
  */
-public interface FooterBuilder<T> extends Builder {
+public interface FooterBuilder extends Builder {
 
     /**
      * 获取footer的布局文件id
@@ -26,14 +24,9 @@ public interface FooterBuilder<T> extends Builder {
     int getFooterLayoutId();
 
     /**
-     * 加载更多数据
-     *
-     * 当列表滑动到底部时调用该方法自动加载更多数据
-     *
-     * @param loadPage 需要请求数据的页数
-     * @param loadDataStatus 加载数据的状态控制器
+     *  正常显示的底部栏，并非用于加载更多数据
      */
-    void onLoadingData(int loadPage, final LoadDataStatus<T> loadDataStatus);
+    void onNormal(ViewHolder holder);
 
     /**
      * 正在加载数据时footer布局界面的逻辑处理

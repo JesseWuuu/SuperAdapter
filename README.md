@@ -3,7 +3,8 @@ Android RecyclerView多功能集合适配器
 
 ## SuperAdapter是什么
 
-`SuperAdapter`是对`RecyclerView.Adapter`进行封装并将许多常用功能集成之中的一个Android库。你不需要为每个列表单独去写`ViewHolder`后再声明控件，当构建不需要重用的列表时你甚至不需要单独创建类去继承`RecyclerView.Adapter`定制适配器，只要在`Activity`或`Fragment`中简单写下几行代码即可实现，有效的减化了复写代码的数量。
+SuperAdapter 是对`RecyclerView.Adapter`进行封装并将许多常用功能集成之中的一个Android库。你不需要为每个列表单独去写`ViewHolder`后再声明控件，当构建不需要重用的列表时你甚至不需要单独创建类去继承`RecyclerView.Adapter`定制适配器，只要在`Activity`或`Fragment`中简单写下几行代码即可实现，有效的减化了复写代码的数量。
+
 
 ## SuperAdapter目前有哪些功能
 
@@ -33,7 +34,7 @@ allprojects {
 
 `compile 'com.github.JesseWuuu:SuperAdapter:x.y.z'`
 
-**注意：上面依赖中的 `x.y.z` 为版本号，目前最新的版本号为 -> `0.1.2`**
+**注意：上面依赖中的 `x.y.z` 为版本号，目前最新的版本号为 -> `0.1.3`**
 
 ## 关于开源
 如果你只是想了解如何使用可以跳过本节。
@@ -47,7 +48,7 @@ allprojects {
 List<DataEntity> mData;
 SuperAdapter<DataEntity> mAdapter; 
 ```
-**如果你的列表需要重复使用需要对`SuperAdapter`进行一层封装，下面有专门一节讲如何高效的封装`SuperAdapter`**
+**如果你的列表会在多处重复使用，这时你需要将 SuperAdapter 封装成自定义的 Adapter，下面会有专门一节讲封装 SuperAdapter 需要注意的事项，此处先不提。**
 
 ## 绑定单一布局的列表
 绑定单一布局列表的方法非常简单，只需要在`SuperAdapter`的构造函数中添加布局文件的`layoutId`与数据源即可。
@@ -66,7 +67,7 @@ SuperAdapter<DataEntity> adapter = new SuperAdapter<DataEntity>(R.layout.view_li
 我们需要在方法 `void bindView(ViewHolder itemView, DataEntity data,int position)` 中绑定列表每个条目中的控件并进行逻辑处理。其中方法参数`ViewHolder itemView` 为自定义 `ViewHolder`。
 
 ### 通用ViewHolder
-为方便管理，SuperAdapter 中的 ViewHolder 均为一个自定义的通用 ViewHolder ，其中它对外提供了一个 `<T extends View>T getView(int viewId)` 方法来代替 `View findViewById(int ViewId)`获取布局中的控件，目的是简化绑定控件方法以及对每个条目中的子 view 做了简单的缓存,具体使用方法上述代码段中有体现。
+为方便管理，SuperAdapter 中持有的 ViewHolder 均为一个通用的自定义 ViewHolder ，其中它对外提供了一个 `<T extends View>T getView(int viewId)` 方法来代替 `View findViewById(int ViewId)`获取布局中的控件，目的是简化绑定控件方法以及对每个条目中的子 view 做了简单的缓存,具体使用方法上述代码段中有体现。
 
 ## 绑定多种布局的列表
 
@@ -109,12 +110,43 @@ mAdapter = new SuperAdapter<DataEntity>(multiItemViewBuilder,mData) {
 
         @Override
         public void convert(ViewHolder holder, DataEntity entity) {
-              
+              // 此处写绑定itemview中的控件逻辑
         }
 
  };
 ```
 最后在方法`convert()`中绑定控件逻辑时需要针对不同的控件类型分别处理。
+
+## 绑定列表点击事件
+绑定点击事件：
+```
+mAdapter.setOnItemClickListener(new SuperAdapter.OnItemClickListener<DataEntity>() {
+        @Override
+        public void onItemClick(int position, DataEntity entity) {
+            // 此处写点击事件的逻辑
+        }
+});
+
+```
+绑定长按事件：
+```
+mAdapter.setOnItemLongClickListener(new SuperAdapter.OnItemLongClickListener<DataEntity>() {
+        @Override
+        public void onItemLongClick(int position, DataEntity entity) {
+            // 此处写长按事件的逻辑
+        }
+});
+
+```
+
+## 设置空数据视图
+
+空数据视图是指宕列表的数据源数据为空时显示的提示视图。设置的使用方法非常简单：
+
+```
+mAdapter.setEmptyDataView(R.layout.empty_view);
+
+```
 
 ## 添加列表唯一顶部Header
 
@@ -150,83 +182,203 @@ mAdapter.addHeader(builder);
 
 ```
 
-## 绑定列表点击事件
-绑定点击事件：
+## 添加列表分类Header
+
+## 添加列表底部Footer
+
+Footer 是为满足特殊需求一直存在于列表底部的ItemView，通常情况下是配合列表分页加载数据使用。添加 Footer 的方法与之前添加 Header 的方法类似，需要一个构造器管理：
+
 ```
-mAdapter.setOnItemClickListener(new SuperAdapter.OnItemClickListener<DataEntity>() {
+FooterBuilder builder = new FooterBuilder() {
+        
+       /**
+        * 获取Footer的布局文件Id
+        */        
         @Override
-        public void onItemClick(int position, DataEntity entity) {
-            // 此处写点击事件的逻辑
+        public int getFooterLayoutId() {
+            return R.layout.view_footer;
         }
-});
 
-```
-绑定长按事件：
-```
-mAdapter.setOnItemLongClickListener(new SuperAdapter.OnItemLongClickListener<DataEntity>() {
+       /**
+        * 非用于分页加载更多数据状态下Footer的界面逻辑处理
+        */
         @Override
-        public void onItemLongClick(int position, DataEntity entity) {
-            // 此处写长按事件的逻辑
+        public void onNormal(ViewHolder holder) {
+            holder.<ProgressBar>getView(R.id.footer_progress).setVisibility(View.GONE);
+            holder.<TextView>getView(R.id.footer_msg).setText("这是个底部");
         }
-});
+
+       /**
+        * 分页加载更多数据 - “正在加载数据中” 状态的界面逻辑处理
+        */
+        @Override
+        public void onLoading(ViewHolder holder) {
+            holder.<ProgressBar>getView(R.id.footer_progress).setVisibility(View.VISIBLE);
+            holder.<TextView>getView(R.id.footer_msg).setText("正在加载数据中");
+        }
+
+       /**
+        * 分页加载更多数据 - “加载数据失败” 状态的界面逻辑处理
+        *
+        * @param msg 数据加载失败的原因
+        */
+        @Override
+        public void onLoadingFailure(ViewHolder holder, String msg) {
+            holder.<ProgressBar>getView(R.id.footer_progress).setVisibility(View.GONE);
+            holder.<TextView>getView(R.id.footer_msg).setText(msg);
+        }
+
+       /**
+        * 分页加载更多数据 - “没有更多数据” 状态的界面逻辑处理
+        */
+        @Override
+        public void onNoMoreData(ViewHolder holder) {
+            holder.<ProgressBar>getView(R.id.footer_progress).setVisibility(View.GONE);
+            holder.<TextView>getView(R.id.footer_msg).setText("已经到底啦");
+        }
+};
 
 ```
 
-## 设置空数据视图
+因为 Footer 需要经常配合列表分页加载数据使用，所以在构造器中除了正常使用情况下的方法`onLoading(ViewHolder holder)`外还提供了三个用于管理分页加载数据状态的方法：
 
-空数据视图是指宕列表的数据源数据为空时显示的提示视图。设置的使用方法非常简单：
+- `onLoading(ViewHolder holder)` 正在加载数据中
+- `onLoadingFailure(ViewHolder holder, String msg)` 数据加载失败，`msg`为失败的原因
+- `onNoMoreData(ViewHolder holder)` 已经加载完所有数据
+
+最后，将构造器添加到 SuperAdapter 中：
 
 ```
-mAdapter.setEmptyDataView(R.layout.empty_view);
+mAdapter.addFooter(builder);
 
 ```
 
-## 分页与上拉加载更多数据
-现实使用场景中有上拉加载更多数据的功能就一定有分页功能，所以我们将这两个功能绑定在了一起，自动加载更多数据方法：
+### 简易Footer构造器SimpleFooterBuilder
+
+考虑到构造 Footer 的过程有些繁琐, SuperAdapter 库中提供了一个简易的内部定义好的 Footer 构造器 `SimpleFooterBuilder`,使用方法很简单：
+
 ```
-public void addLoadMoreListeneraddLoadMoreListener(int startPage, LoadMoreListener loadMoreListener);
+mAdapter.addFooter(new SimpleFooterBuilder("这是个底部","正在加载数据中","加载数据失败","已经到底啦"));
+
 ```
-- 参数`int startPage`为数据列表的起始页数，默认起始页数为0页。如设置参数`startPage = 1`，当触发`loadMoreListener`时回调的参数`page` 就是 `2`。
-- 参数`loadMoreListener`为加载更多数据监听器，当列表滑动到底部时回调。
 
-为适配器添加自动加载更多数据：
+`SimpleFooterBuilder`构造方法中的4个参数依次对应着 Footer 的正常模式、正在加载、加载失败、加载完毕这几种状态的提示信息。
+
+
+## 分页自动加载更多数据
+
+**注意！在设置分页加载数据前一定要先添加Footer**
+
+在使用该功能时，用户可以自己设置分页请求数据的起始页，每当列表滑动到底部的时候就会按之前设置的页数依次累加请求新的数据。
+
+
+设置分页加载数据调用 SuperAdapter 的`setPaginationData()`方法就可以，但是在这之前需要一个加载数据监听器`LoadDataListener`来管理数据的加载状态，当列表需要加载新的数据时就会调用监听器的`onLoadingData()`方法，该方法有两个参数：
+
+- `int loadPage` 需要加载新数据的页数
+- `LoadDataStatus loadDataStatus`  分页加载数据的状态控制器
+
+分页加载数据的状态控制器`LoadDataStatus` 提供了三种状态：
+
+- `onSuccess(List<T> datas)` 数据请求成功调用该方法传入新数据
+- `onFailure(String msg)` 数据请求失败调用该方法传入失败信息
+- `onNoMoreData()` 数据全部加载完毕调用该方法
+
+
+**注意！加载数据一定要调用状态控制器`LoadDataStatus`中的方法给列表加载状态做反馈**
+
+
+具体的实现代码：
+
 ```
-mAdapter.addLoadMoreListener(0, new SuperAdapter.LoadMoreListener() {
+// 分页加载数据的起始页
+private static final int START_PAGE = 0;
 
-      @Override
-      public void onLoadMore(int page, SuperAdapter.LoadDataStatus status) {
+...
+...
 
-            loadData(page,new Callback(){
-
-                  @Override
-                  public void onSuccess(List<DataEntity > data){
-                        // 判断是否成功获取到新数据
-                        if(data.size() == 0){
-                            status.onSuccess(data);
-                        }else{
-                            status.onNoMoreData();
+// 实现加载数据监听器
+LoadDataListener listener = new LoadDataListener() {
+    
+        @Override
+        public void onLoadingData(final int loadPage, final LoadDataStatus loadDataStatus) {
+            
+                DataManager.getListPaginationData(loadPage,new Callback(){
+                        
+                        @Override
+                        public void onSuccess(List<String> datas){
+                            if(datas.size() == 0){
+                                loadDataStatus.onNoMoreData();
+                            }else{
+                                loadDataStatus.onSuccess(datas);
+                            }
                         }
-                       
-                  }
 
-                  @Override
-                  public void onFailure(){
-                       status.onFailure();
-                  }
-            });
-      }
-});
+                        @Override
+                        public void onFailure(String msg){
+                            loadDataStatus.onFailure(msg);
+                        }
+
+                        @Override
+                        public void onError(){
+                            loadDataStatus.onFailure("网络请求出错");
+                        }                                
+                });
+        }
+}
+
+// 设置分页加载数据
+mAdapter.setPaginationData(START_PAGE, listener);
+
 ```
-在列表滑动到底部时监听器会回调`onLoadMore(int page, SuperAdapter.LoadDataStatus status) `方法来加载更多数据，方法中包含两个参数：
-- `int page` 当前要获取新数据的页数。
-- ` SuperAdapter.LoadDataStatus status` 设置加载数据的状态：
-    1. `status.onSuccess(data)` 获取成功时调用并传入新数据
-    2. `status.onFailure()` 获取数据失败时调用
-    3. `status.onNoMoreData()`数据加载完毕没有新的数据时调用。
 
-##使用加载更多数据监听器的注意事项：
-- 在监听器回调的`onLoadMore()`方法中加载数据时一定要至少给`LoadDataStatus`设置一种状态来回复监听器。
-- 在设置了`LoadMoreListener`监听器后不可在外部调用`mAdapter.notifyDataSetChanged();`方法。
+## 封装 SuperAdapter 的注意事项
 
+`SuperAdaper`类中提供了两个有参构造方法： 
+- `SuperAdapter(int layoutId )`  
+- `SuperAdapter(MultiItemViewBuilder multiItemViewBuilder)` 
 
-## 封装能够重复使用的`SuperAdapter`
+他们实现了不同类型的子布局，所以继承`SuperAdapter`时要`Super()`其中一个构造方法，但是你肯定不希望每次实例化适配器都要定义它们，所以建议在你的自定义类中将布局类型以`static`方法定义好：
+
+```
+private static int layoutId = R.layout.view_list_item;
+
+```
+或者
+
+```
+private static MultiItemViewBuilder<TestEntity> multiItemViewBuilder = new MultiItemViewBuilder<TestEntity>() {
+
+        @Override
+        public int getLayoutId(int type) {
+            if (type == 0){
+                return R.layout.view_list_item_1;
+            }else {
+                return R.layout.view_list_item_2;
+            }
+        }
+
+        @Override
+        public int getItemType(int position, TestEntity data) {
+            return data.getType();
+        }
+    };
+
+```
+
+这样自定义类的构造方法中就无需填写参数：
+
+```
+public MineAdapter() {
+    super(layoutId);
+    // do something
+}
+```
+
+或者
+
+```
+public MineAdapter() {
+    super(multiItemViewBuilder);
+    // do something
+}
+```

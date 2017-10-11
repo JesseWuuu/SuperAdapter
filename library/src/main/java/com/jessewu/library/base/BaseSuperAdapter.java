@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import com.jessewu.library.builder.FooterBuilder;
 import com.jessewu.library.builder.HeaderBuilder;
 import com.jessewu.library.builder.MultiItemViewBuilder;
+import com.jessewu.library.paging.LoadDataListener;
 import com.jessewu.library.view.ViewHolder;
 
 import java.util.HashSet;
@@ -59,6 +60,9 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
     // 底部视图构建器
     protected FooterBuilder mFooterBuilder;
 
+    // 加载更多数据监听器
+    protected LoadDataListener mLoadDataListener;
+
 
     /**
      * 获取里列表中特殊控件的数量
@@ -89,6 +93,13 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
     }
 
     /**
+     * 是否需要加载更多数据
+     */
+    protected boolean shouldLoadMoreData(){
+        return hasFooterView() && mLoadDataListener != null;
+    }
+
+    /**
      * 是否设置过空视图
      */
     protected boolean hasEmptyView(){
@@ -110,5 +121,13 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
         return newPosition;
     }
 
+    /**
+     * 底部构造器未加载异常
+     */
+    public static class FooterBuilderNotLoadedException extends RuntimeException {
+        public FooterBuilderNotLoadedException() {
+            super("The FooterBuilder is not loaded");
+        }
+    }
 
 }

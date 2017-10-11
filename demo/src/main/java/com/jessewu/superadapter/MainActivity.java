@@ -49,5 +49,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void demo(View view){
+        Intent i = new Intent();
+        i.setClass(this,DemoActivity.class);
+        startActivity(i);
+    }
+
 
 }

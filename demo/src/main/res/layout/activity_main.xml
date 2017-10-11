@@ -8,47 +8,67 @@
     tools:context="com.jessewu.superadapter.MainActivity">
 
 
-    <Button
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:text="普通列表"
-        android:layout_marginBottom="8dp"
-        android:onClick="normal"/>
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:text="多类型ItemView列表"
-        android:layout_marginBottom="8dp"
-        android:onClick="multiItemView"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="普通列表"
+                android:layout_marginBottom="8dp"
+                android:onClick="normal"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:text="添加列表头部"
-        android:layout_marginBottom="8dp"
-        android:onClick="singleHeader"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="多类型ItemView列表"
+                android:layout_marginBottom="8dp"
+                android:onClick="multiItemView"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:text="点击事件"
-        android:layout_marginBottom="8dp"
-        android:onClick="click"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="添加列表头部"
+                android:layout_marginBottom="8dp"
+                android:onClick="singleHeader"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:text="分页与自动加载更多"
-        android:layout_marginBottom="8dp"
-        android:onClick="more"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="点击事件"
+                android:layout_marginBottom="8dp"
+                android:onClick="click"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:text="空视图"
-        android:layout_marginBottom="8dp"
-        android:onClick="empty"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="分页与自动加载更多"
+                android:layout_marginBottom="8dp"
+                android:onClick="more"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="空视图"
+                android:layout_marginBottom="8dp"
+                android:onClick="empty"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="Demo"
+                android:layout_marginBottom="8dp"
+                android:onClick="demo"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+
 
 
 </LinearLayout>
