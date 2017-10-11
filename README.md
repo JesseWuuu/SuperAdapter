@@ -34,7 +34,7 @@ allprojects {
 
 `compile 'com.github.JesseWuuu:SuperAdapter:x.y.z'`
 
-**注意：上面依赖中的 `x.y.z` 为版本号，目前最新的版本号为 -> `0.1.3`**
+**注意：上面依赖中的 `x.y.z` 为版本号，目前最新的版本号为 -> `0.2.0`**
 
 ## 关于开源
 
