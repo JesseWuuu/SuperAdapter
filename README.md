@@ -141,12 +141,13 @@ mAdapter.setOnItemLongClickListener(new SuperAdapter.OnItemLongClickListener<Dat
 
 ## 设置空数据视图
 
-空数据视图是指宕列表的数据源数据为空时显示的提示视图。设置的使用方法非常简单：
+空数据视图是指列表的数据源数据为空时显示的提示视图。设置的使用方法非常简单：
 
 ```
 mAdapter.setEmptyDataView(R.layout.empty_view);
 
 ```
+**在为列表添加了 Header 与 Footer 后即使数据源为空也不认为需要显示空视图**
 
 ## 添加列表唯一顶部Header
 
@@ -240,7 +241,7 @@ FooterBuilder builder = new FooterBuilder() {
 
 ```
 
-因为 Footer 需要经常配合列表分页加载数据使用，所以在构造器中除了正常使用情况下的方法`onLoading(ViewHolder holder)`外还提供了三个用于管理分页加载数据状态的方法：
+因为 Footer 需要经常配合列表分页加载数据使用，所以在构造器中除了正常使用情况下的方法`onNormal(ViewHolder holder)`外还提供了三个用于管理分页加载数据状态的方法：
 
 - `onLoading(ViewHolder holder)` 正在加载数据中
 - `onLoadingFailure(ViewHolder holder, String msg)` 数据加载失败，`msg`为失败的原因
