@@ -55,5 +55,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void expand(View view){
+        Intent i = new Intent();
+        i.setClass(this,ExpandHeaderActivity.class);
+        startActivity(i);
+    }
+
 
 }

@@ -53,4 +53,21 @@ public class DataModel {
         return list;
     }
 
+    public static List<ExpandDataEntity> getExpandData(){
+        List<ExpandDataEntity> entities = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            ExpandDataEntity entity = new ExpandDataEntity();
+            entity.setTitle(""+i);
+            List<TestEntity> list = new ArrayList<>();
+            for (int j = 0; j < 4; j++) {
+                TestEntity data = new TestEntity();
+                data.setTitle(j+"");
+                list.add(data);
+            }
+            entity.setChildren(list);
+            entities.add(entity);
+        }
+        return entities;
+    }
+
 }

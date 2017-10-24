@@ -40,6 +40,13 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
+                android:text="添加分级头部"
+                android:layout_marginBottom="8dp"
+                android:onClick="expand"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
                 android:text="点击事件"
                 android:layout_marginBottom="8dp"
                 android:onClick="click"/>
@@ -64,6 +71,8 @@
                 android:text="Demo"
                 android:layout_marginBottom="8dp"
                 android:onClick="demo"/>
+
+
 
         </LinearLayout>
     </ScrollView>

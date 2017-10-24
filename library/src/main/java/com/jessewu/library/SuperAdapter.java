@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jessewu.library.base.BaseSuperAdapter;
+import com.jessewu.library.builder.ExpandHeaderBuilder;
 import com.jessewu.library.builder.FooterBuilder;
 import com.jessewu.library.builder.HeaderBuilder;
 import com.jessewu.library.builder.MultiItemViewBuilder;
@@ -47,6 +48,17 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
 
     // 分页加载数据时加载错误提示的信息
     private String mLoadingFailureMsg = "";
+
+    // 分类列表中子item的临界点
+    private int mExpandChildrenDeadline = 0;
+
+    // 分类列表数据源的单纯指针
+    private int mExpandHeaderPointer = 0;
+
+    // 分类列表中children数据源的单纯指针
+    private int mExpandChildrenPointer = 0;
+
+    private boolean isShowChildren;
 
     /**
      *  点击事件监听器
@@ -86,6 +98,14 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public SuperAdapter(MultiItemViewBuilder multiItemViewBuilder){
         this.mMultiItemViewBuilder = multiItemViewBuilder;
+    }
+
+    /**
+     * 带分类头部列表构造方法
+     * @param expandHeaderBuilder 多类型布局构造器
+     */
+    public SuperAdapter(ExpandHeaderBuilder expandHeaderBuilder){
+        this.mExpandHeaderBuilder = expandHeaderBuilder;
     }
 
     /**
@@ -219,6 +239,38 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         if(position == mDatas.size() && hasFooterView()){
             return TYPE_FOOT;
         }
+
+        if (isExpandHeaderView()){
+            Log.d(TAG, "getItemViewType: mExpandHeaderPointer="+mExpandHeaderPointer+",mExpandChildrenPointer="+mExpandChildrenPointer+",position="+position+",deadline="+mExpandChildrenDeadline);
+            // 获取header数据源
+            T entity = mDatas.get(mExpandHeaderPointer);
+            // 获取children数据源
+            List children = mExpandHeaderBuilder.getChildrenList(entity);
+            // 布局type
+            int expandItemType ;
+
+            // 判断position是否超出children边界线位置
+            // 超出 -> header
+            // 没超出 -> children
+            if (shouldShowExpandChildren(position)){
+                // 获取children布局type
+                expandItemType = mExpandHeaderBuilder.getChildrenLayoutType(
+                        children.get(mExpandChildrenPointer)
+                        ,position
+                        ,mExpandChildrenPointer);
+
+            }else {
+                // 获取header布局type
+                expandItemType = mExpandHeaderBuilder.getHeaderLayoutType(
+                        entity
+                        ,position
+                        ,mExpandHeaderPointer);
+
+            }
+
+            return expandItemType;
+        }
+
         // 多类型item
         if(isMultiItemView()){
             return mMultiItemViewBuilder.getItemType(position,mDatas.get(position));
@@ -248,6 +300,15 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
 
         // 列表中的ItemView应放在特殊View之后判断
         int layoutId = mSingleItemViewLayoutId;
+
+        if (isExpandHeaderView()){
+            if (shouldShowExpandChildren()){
+                layoutId = mExpandHeaderBuilder.getChildrenLayoutId(viewType);
+            }else{
+                layoutId = mExpandHeaderBuilder.getHeaderLayoutId(viewType);
+            }
+        }
+
         if (isMultiItemView()){
             layoutId = mMultiItemViewBuilder.getLayoutId(viewType);
         }
@@ -318,6 +379,30 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         }
 
         holder.itemView.setTag(position);
+
+        if (isExpandHeaderView()){
+            List children = mExpandHeaderBuilder.getChildrenList(mDatas.get(mExpandHeaderPointer));
+            if (shouldShowExpandChildren()){
+                mExpandHeaderBuilder.bindChildrenView(
+                        holder
+                        ,children.get(mExpandChildrenPointer)
+                        ,position,mExpandChildrenPointer);
+                // children数据源独立指针加一
+                mExpandChildrenPointer++;
+                Log.d(TAG, "onBindViewHolder: show child");
+            }else{
+                bindView(holder,mDatas.get(mExpandHeaderPointer),position);
+                // 设置子布局边界线位置
+                mExpandChildrenDeadline = position + children.size() + 1;
+                // 数据源独立指针加一
+                mExpandHeaderPointer++;
+                // 子数据源指针置0
+                mExpandChildrenPointer = 0;
+                Log.d(TAG, "onBindViewHolder: show header");
+            }
+            return;
+        }
+
         bindView(holder,mDatas.get(position),position);
     }
 
@@ -330,6 +415,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
             count++;
         }
 
+        if (isExpandHeaderView()){
+            count += getExpandChildrenNum();
+        }
+        Log.d(TAG, "getItemCount: "+(count + getSpecialBuilderNum()));
         return count + getSpecialBuilderNum();
     }
 
@@ -387,6 +476,25 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     private boolean shouldShowEmptyView(){
         return hasEmptyView() && mDatas.size() == 0 && !hasFooterView() && !hasHeaderView();
+    }
+
+    private boolean shouldShowExpandChildren(int position){
+        isShowChildren = position < mExpandChildrenDeadline ;
+        return isShowChildren;
+    }
+
+    private boolean shouldShowExpandChildren(){
+        return isShowChildren;
+    }
+
+    private int getExpandChildrenNum(){
+
+        int count = 0;
+        for (int i = 0; i < mDatas.size(); i++) {
+            count += mExpandHeaderBuilder.getChildrenList(mDatas.get(i)).size();
+        }
+
+        return count;
     }
 
 

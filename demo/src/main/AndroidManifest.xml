@@ -22,7 +22,8 @@
         <activity android:name=".ClickActivity" />
         <activity android:name=".MoreDataActivity" />
         <activity android:name=".EmptyViewActivity" />
-        <activity android:name=".DemoActivity"></activity>
+        <activity android:name=".DemoActivity" />
+        <activity android:name=".ExpandHeaderActivity"></activity>
     </application>
 
 </manifest>

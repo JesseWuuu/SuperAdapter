@@ -9,6 +9,7 @@ package com.jessewu.library.base;
 
 import android.support.v7.widget.RecyclerView;
 
+import com.jessewu.library.builder.ExpandHeaderBuilder;
 import com.jessewu.library.builder.FooterBuilder;
 import com.jessewu.library.builder.HeaderBuilder;
 import com.jessewu.library.builder.MultiItemViewBuilder;
@@ -54,6 +55,9 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
     // 多类型item 构建器
     protected MultiItemViewBuilder mMultiItemViewBuilder;
 
+    // 分类列表构造器
+    protected ExpandHeaderBuilder mExpandHeaderBuilder;
+
     // 唯一头部视图构建器
     protected HeaderBuilder mHeaderBuilder;
 
@@ -71,11 +75,20 @@ public abstract class BaseSuperAdapter extends RecyclerView.Adapter<ViewHolder> 
         return mSpecialViewBuilder.size();
     }
 
+
+
     /**
      * 是否为多类型item
      */
     protected boolean isMultiItemView(){
         return mMultiItemViewBuilder != null;
+    }
+
+    /**
+     * 是否为分类头部列表
+     */
+    protected boolean isExpandHeaderView(){
+        return this.mExpandHeaderBuilder != null;
     }
 
     /**
