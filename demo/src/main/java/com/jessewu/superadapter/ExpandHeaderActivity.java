@@ -63,7 +63,7 @@ public class ExpandHeaderActivity extends AppCompatActivity {
         SuperAdapter<ExpandDataEntity> adapter = new SuperAdapter<ExpandDataEntity>(builder) {
             @Override
             public void bindView(ViewHolder itemView, ExpandDataEntity data, int position) {
-                itemView.<TextView>getView(R.id.expand_text).setText(data.getTitle());
+                itemView.<TextView>getView(R.id.expand_text).setText("SubHeader"+data.getTitle());
             }
         };
 

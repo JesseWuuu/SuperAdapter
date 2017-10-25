@@ -21,7 +21,9 @@ import com.jessewu.library.paging.LoadDataStatus;
 import com.jessewu.library.view.ViewHolder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class SuperAdapter<T> extends BaseSuperAdapter
         implements View.OnClickListener,View.OnLongClickListener {
@@ -49,16 +51,14 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
     // 分页加载数据时加载错误提示的信息
     private String mLoadingFailureMsg = "";
 
-    // 分类列表中子item的临界点
-    private int mExpandChildrenDeadline = 0;
+    // 是否显示分类列表的头部
+    private boolean isShowExpandHeader;
 
-    // 分类列表数据源的单纯指针
-    private int mExpandHeaderPointer = 0;
+    // 分类列表单独数据源：header + children
+    private List mExpandListData= new ArrayList();
 
-    // 分类列表中children数据源的单纯指针
-    private int mExpandChildrenPointer = 0;
-
-    private boolean isShowChildren;
+    // 分类列表header在两个数据源中分别对应的位置：[ExpDataIndex,DataIndex]
+    private Map<Integer,Integer> mExpandHeaderIndexMap = new HashMap<>();
 
     /**
      *  点击事件监听器
@@ -171,6 +171,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public final void setData(List<T> datas){
         this.mDatas = datas;
+        updateExpandListData();
         notifyDataSetChanged();
     }
 
@@ -179,6 +180,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public final void addData(List<T> datas){
         this.mDatas.addAll(datas);
+        updateExpandListData();
         notifyDataSetChanged();
     }
 
@@ -187,6 +189,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public final void addData(T data){
         this.mDatas.add(data);
+        updateExpandListData();
         notifyDataSetChanged();
     }
 
@@ -195,6 +198,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public final void removeData(T data){
         this.mDatas.remove(data);
+        updateExpandListData();
         notifyDataSetChanged();
     }
 
@@ -203,6 +207,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public final void removeData(int position){
         this.mDatas.remove(checkPosition(position));
+        updateExpandListData();
         notifyDataSetChanged();
     }
 
@@ -211,6 +216,7 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
      */
     public final void clearData(){
         this.mDatas.clear();
+        updateExpandListData();
         notifyDataSetChanged();
     }
 
@@ -241,33 +247,22 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         }
 
         if (isExpandHeaderView()){
-            Log.d(TAG, "getItemViewType: mExpandHeaderPointer="+mExpandHeaderPointer+",mExpandChildrenPointer="+mExpandChildrenPointer+",position="+position+",deadline="+mExpandChildrenDeadline);
-            // 获取header数据源
-            T entity = mDatas.get(mExpandHeaderPointer);
-            // 获取children数据源
-            List children = mExpandHeaderBuilder.getChildrenList(entity);
+
             // 布局type
             int expandItemType ;
-
-            // 判断position是否超出children边界线位置
-            // 超出 -> header
-            // 没超出 -> children
-            if (shouldShowExpandChildren(position)){
-                // 获取children布局type
-                expandItemType = mExpandHeaderBuilder.getChildrenLayoutType(
-                        children.get(mExpandChildrenPointer)
-                        ,position
-                        ,mExpandChildrenPointer);
-
-            }else {
+            if (shouldShowExpandHeaderView(position)){
                 // 获取header布局type
                 expandItemType = mExpandHeaderBuilder.getHeaderLayoutType(
-                        entity
+                        mExpandListData.get(position)
                         ,position
-                        ,mExpandHeaderPointer);
-
+                        ,getHeaderListIndex(position));
+            }else {
+                // 获取children布局type
+                expandItemType = mExpandHeaderBuilder.getChildrenLayoutType(
+                        mExpandListData.get(position)
+                        ,position
+                        ,getChildrenListIndex(position));
             }
-
             return expandItemType;
         }
 
@@ -302,10 +297,10 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         int layoutId = mSingleItemViewLayoutId;
 
         if (isExpandHeaderView()){
-            if (shouldShowExpandChildren()){
-                layoutId = mExpandHeaderBuilder.getChildrenLayoutId(viewType);
-            }else{
+            if (shouldShowExpandHeaderView()){
                 layoutId = mExpandHeaderBuilder.getHeaderLayoutId(viewType);
+            }else{
+                layoutId = mExpandHeaderBuilder.getChildrenLayoutId(viewType);
             }
         }
 
@@ -320,8 +315,6 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
-        Log.d(TAG, "onBindViewHolder----------------");
 
         if( position == 0 && hasHeaderView()){
             // 绑定 header 视图
@@ -380,29 +373,21 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
 
         holder.itemView.setTag(position);
 
+
         if (isExpandHeaderView()){
-            List children = mExpandHeaderBuilder.getChildrenList(mDatas.get(mExpandHeaderPointer));
-            if (shouldShowExpandChildren()){
+            if (shouldShowExpandHeaderView()){
+                bindView(holder,(T)mExpandListData.get(position),position);
+                Log.d(TAG, "Exp-Header");
+
+            }else{
                 mExpandHeaderBuilder.bindChildrenView(
                         holder
-                        ,children.get(mExpandChildrenPointer)
-                        ,position,mExpandChildrenPointer);
-                // children数据源独立指针加一
-                mExpandChildrenPointer++;
-                Log.d(TAG, "onBindViewHolder: show child");
-            }else{
-                bindView(holder,mDatas.get(mExpandHeaderPointer),position);
-                // 设置子布局边界线位置
-                mExpandChildrenDeadline = position + children.size() + 1;
-                // 数据源独立指针加一
-                mExpandHeaderPointer++;
-                // 子数据源指针置0
-                mExpandChildrenPointer = 0;
-                Log.d(TAG, "onBindViewHolder: show header");
+                        ,mExpandListData.get(position)
+                        ,position,getChildrenListIndex(position));
+                Log.d(TAG, "Exp-Child");
             }
             return;
         }
-
         bindView(holder,mDatas.get(position),position);
     }
 
@@ -416,9 +401,8 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         }
 
         if (isExpandHeaderView()){
-            count += getExpandChildrenNum();
+            count = mExpandListData.size();
         }
-        Log.d(TAG, "getItemCount: "+(count + getSpecialBuilderNum()));
         return count + getSpecialBuilderNum();
     }
 
@@ -438,6 +422,23 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         }
         return true;
     }
+
+
+    /**
+     * 是否应该显示空视图
+     */
+    private boolean shouldShowEmptyView(){
+        return hasEmptyView() && mDatas.size() == 0 && !hasFooterView() && !hasHeaderView();
+    }
+
+
+    /*
+     * =============================================================================================
+     *
+     *      分页加载数据
+     *
+     * =============================================================================================
+     */
 
     /**
      * 分页获取数据状态控制器接口实现类
@@ -471,30 +472,81 @@ public abstract class SuperAdapter<T> extends BaseSuperAdapter
         notifyDataSetChanged();
     }
 
-    /**
-     * 是否应该显示空视图
+    /*
+     * =============================================================================================
+     *
+     *      分类列表
+     *
+     * =============================================================================================
      */
-    private boolean shouldShowEmptyView(){
-        return hasEmptyView() && mDatas.size() == 0 && !hasFooterView() && !hasHeaderView();
-    }
 
-    private boolean shouldShowExpandChildren(int position){
-        isShowChildren = position < mExpandChildrenDeadline ;
-        return isShowChildren;
-    }
 
-    private boolean shouldShowExpandChildren(){
-        return isShowChildren;
-    }
-
-    private int getExpandChildrenNum(){
-
-        int count = 0;
-        for (int i = 0; i < mDatas.size(); i++) {
-            count += mExpandHeaderBuilder.getChildrenList(mDatas.get(i)).size();
+    /**
+     * 更新分类列表独立数据源
+     *
+     * 将原始数据源两层List拆分合并成一层List
+     */
+    private void updateExpandListData(){
+        if (!isExpandHeaderView()){
+            return;
         }
+        mExpandHeaderIndexMap.clear();
+        mExpandListData.clear();
+        for (int i = 0; i < mDatas.size(); i++) {
+            setExpandListData(mDatas.get(i),i);
+        }
+    }
 
-        return count;
+    /**
+     * 将原始数据源两层List拆分合并成一层List
+     */
+    private void setExpandListData(T data,int index){
+        // 保存header在两个列表中分别对应的位置
+        mExpandHeaderIndexMap.put(mExpandListData.size(),index);
+        mExpandListData.add(data);
+        mExpandListData.addAll(mExpandHeaderBuilder.getChildrenList(data));
+    }
+
+    /**
+     * 是否需要显示分类列表的header
+     */
+    private boolean shouldShowExpandHeaderView(int position){
+        isShowExpandHeader = mExpandHeaderIndexMap.containsKey(position);
+        return isShowExpandHeader;
+    }
+
+    /**
+     * 是否需要显示分类列表的header
+     */
+    private boolean shouldShowExpandHeaderView(){
+        return isShowExpandHeader;
+    }
+
+    /**
+     * 获取分类列表header在原始数据源list中的位置
+     */
+    private int getHeaderListIndex(int position){
+        while (!mExpandHeaderIndexMap.containsKey(position)){
+            position--;
+        }
+        return mExpandHeaderIndexMap.get(position);
+    }
+
+    /**
+     * 获取分类列表header在扩展数据源Expand-list中的位置
+     */
+    private int getParentIndex(int position){
+        while (!mExpandHeaderIndexMap.containsKey(position)){
+            position--;
+        }
+        return position;
+    }
+
+    /**
+     * 获取分类列表中child在childrenList中的位置
+     */
+    private int getChildrenListIndex(int position){
+        return position - getParentIndex(position) - 1;
     }
 
 
